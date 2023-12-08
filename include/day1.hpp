@@ -20,6 +20,7 @@
 #include <vector>
 
 class Day1 {
+  int acc = 0;
   std::vector<std::pair<int, int> > vector;
 public:
   Day1() {
@@ -41,8 +42,10 @@ public:
     std::ifstream fin(filename);
     std::string line;    
     while(fin >> line) {
+      acc++;
       std::pair<int, int> pair(0,0);
       for (int i = 0; i < line.length(); i++) {
+        acc++;
         if (std::isdigit(line[i])) {
          insertValue(pair, int(line[i]) - 48);
         }
@@ -81,6 +84,7 @@ public:
   int sumAllValues() {
     int sum = 0;
     for(auto pair: vector) {
+      acc++;
       std::string s1 = std::to_string(pair.first);
       std::string s2 = std::to_string(pair.second);
       sum += std::stoi(s1 + s2);
@@ -89,7 +93,7 @@ public:
   }
 
   void test(){
-    std::cout << sumAllValues() << std::endl;
     std::cout << "Test Day 1: Part 2 sum: " << sumAllValues() << std::endl;
+    std::cout << "Acc = " << acc << std::endl;
   }
 };

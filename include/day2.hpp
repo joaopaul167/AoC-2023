@@ -53,6 +53,7 @@ enum COLOR {
 };
 
 class Day2 {
+  int acc = 0;
   std::map<int, std::shared_ptr<Game>> map;
 public:
   Day2() {
@@ -83,11 +84,13 @@ public:
     std::ifstream fin(filename);
     std::string line;        
     while(std::getline(fin, line)) {  
+      acc++;
       auto g = std::make_shared<Game>();
       std::stringstream ss(line);
       std::string component;
       std::vector<std::string> vh;      
       while(ss >> component) {
+        acc++;  
         vh.push_back(component);
         if (component.substr(0,4) == "blue") {
           addToGame(g, vh, COLOR::BLUE);
@@ -108,15 +111,16 @@ public:
     int sum = 0;
     int sum_power = 0;
     for (auto i: map) {
+      acc++;
       auto game = i.second;
       if (game->r <= g_ref->r && game->g <= g_ref->g && game->b <= g_ref->b) {
         sum += i.first;
-        // std::cout << i.first << " " << i.second->r << " " << i.second->g << " " << i.second->b << std::endl;
       }
       sum_power += game->r * game->g * game->b;
     }
     std::cout << "Test Day 2: Part 1 sum: "<< sum << std::endl;
     std::cout << "Test Day 2: Part 2 sum: " << sum_power << std::endl;
+    std::cout << "Acc = " << acc << std::endl;
 
   }
 };
