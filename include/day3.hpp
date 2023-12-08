@@ -12,142 +12,70 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <memory>
 #include <string>
-#include <tuple>
-#include <vector>
 
 class Day3 {
-  std::vector<std::vector<char>> board;
-  std::map<std::tuple<int, int, int>, int> n_locations;
+  std::map<std::pair<int, int>, int> n_map;
+  std::map<std::pair<int, int>, char> s_map;
 public:
   Day3() {
     loadInput("inputs/day3.txt");
   };
   ~Day3() {};
 
-  void loadInput(const std::string& filename) {
-    std::ifstream fin(filename);
-    std::string line;
-    while (std::getline(fin, line)) {
-      std::vector<char> row;
-      for (int j = 0; j < line.length(); j++) {
-        char ch = line[j];
-        std::cout << ch;
-        row.push_back(ch);
-      }
-      std::cout << std::endl;
-      board.push_back(row);
-    }
+  void addValue (int xs, int ys, int value) {
+    n_map[{xs, ys}] = value;
   }
 
-  void process() {}
+  void addSymbol(int xs, int ys, char symbol) {
+    s_map[{xs, ys}] = symbol;
+  }
 
-
-
-
-
-
-
-
-
-  bool haveSymbolAbove1(int l_idx, int s_idx, int e_idx) {
-    if (l_idx <= 0) {
-       return false;
-    } else {
-        l_idx -= 1;
-    }
-    if(s_idx <= 0) {
-      s_idx = 0;
-    } else {
-      s_idx -= 1;
-    }
-    if(e_idx < board[l_idx].size()) {
-      e_idx += 1;
-    }
-
-    for (int i = s_idx ; i < e_idx; i++) {
-      // check rules
-      if (!std::isdigit(board[l_idx][i]) && board[l_idx][i] != '.') {
-        return true;
-      }
+  bool haveSymbolAround(int xs, int ys, int n_len) {
+    if (s_map[{xs, ys - 1}] || s_map[{xs, ys + n_len}]) return true;
+    for (int i = ys - 1; i <= ys + n_len; i++) {
+      if (s_map[{xs - 1, i}] || s_map[{xs + 1, i}]) return true;
     }
     return false;
   }
 
-
-  bool haveSymbolBefore1(int s_idx, std::shared_ptr<std::vector<char>> row) {
-    if(s_idx <= 0) {
-      s_idx = 0;
-    } else {
-      s_idx -= 1;
-    }
-    char left_c = row->at(s_idx);
-    bool left = (!std::isdigit(left_c) && left_c != '.');
-    
-    return left;
-  }
-
-  void addValueToLocation1(int l_idx, int s_idx, int e_idx, int value, std::shared_ptr<std::vector<char>> row) {
-    std::tuple<int, int, int> key = { l_idx, s_idx, e_idx };
-    std::cout << l_idx << " " << s_idx \
-        << " " << e_idx << " " << value << "\n"; 
-    std::cout << haveSymbolAbove1(l_idx, s_idx, e_idx) << " | " <<  haveSymbolBefore1(s_idx, row) << std::endl;
-
-    if(haveSymbolAbove1(l_idx, s_idx, e_idx) || haveSymbolBefore1(s_idx, row)) {
-      if (!n_locations[key]) {
-        n_locations[key] = value;
-      }
-    }
-  }
-
-  void loadInput1(const std::string& filename) {
+  void loadInput(const std::string& filename) {
     std::ifstream fin(filename);
     std::string line;
     int line_idx = 0;
     while (std::getline(fin, line)) {
-      std::vector<char> row;
-      bool isNumberTag = false;
       int number = 0;
-      int startIdx = 0;
-      int endIdx = 0;
       for (int j = 0; j < line.length(); j++) {
         char ch = line[j];
-        //std::cout << ch;
-        row.push_back(ch);
         if (std::isdigit(ch)) {
-          if (number == 0) {
-            startIdx = j;
-          }
-          isNumberTag = true;
           number = std::stoi(std::to_string(number) + ch);
-          // is number
         } else {
-          // is a symbol
           if (number > 0 ) {
-            endIdx = j;
-            addValueToLocation1(line_idx, startIdx, endIdx, number, std::make_shared<std::vector<char>>(row));
+            addValue(line_idx, j - std::to_string(number).length(), number);
+            number = 0;
           }
-          if(ch != '.') {
-            
+          if (ch != '.') {
+            addSymbol(line_idx, j, ch);
           }
-          isNumberTag = false;
-          number = 0;
         }
       }
-      board.push_back(row);
       line_idx++;
     }
   }
 
-  void printLocations () {
-    for(auto location : n_locations) {
-      std::cout << std::get<0>(location.first) << " " << std::get<1>(location.first) \
-        << " " << std::get<2>(location.first) << " " << location.second << "\n"; 
+  void process() {
+    int sum = 0;
+    for (auto value: n_map) {
+      auto key = value.first;
+      int number = value.second;
+      if(haveSymbolAround(key.first, key.second, std::to_string(number).length())) {
+        sum += number;
+      }
     }
+    std::cout << sum << std::endl;
   }
 
   void test() {
-    //printLocations();
+    process();
   };
 };
