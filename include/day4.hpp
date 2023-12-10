@@ -9,6 +9,21 @@
 // which of the numbers you have appear in the list of winning numbers. 
 // The first match makes the card worth one point and each match after 
 // the first doubles the point value of that card.
+//
+// Part 2 
+// There's no such thing as "points". Instead, scratchcards only cause you to 
+// win more scratchcards equal to the number of winning numbers you have.
+
+// Specifically, you win copies of the scratchcards below the winning card equal 
+// to the number of matches. So, if card 10 were to have 5 matching numbers, 
+// you would win one copy each of cards 11, 12, 13, 14, and 15.
+
+// Copies of scratchcards are scored like normal scratchcards and have the same 
+// card number as the card they copied. So, if you win a copy of card 10 and it 
+// has 5 matching numbers, it would then win a copy of the same cards that the 
+// original card 10 won: cards 11, 12, 13, 14, and 15. This process repeats 
+// until none of the copies cause you to win any more cards. (Cards will never 
+// make you copy a card past the end of the table.)
 
 #include <cctype>
 #include <ctime>
@@ -20,6 +35,7 @@
 
 class Day4 {
   clock_t begin_t;
+  int acc = 0;
   std::map<int, std::set<int>> win_map;
   std::map<int, std::set<int>> hand_map;
   std::map<int, int> count_map;
@@ -39,6 +55,16 @@ class Day4 {
 
     void addHandside(int idx, int value) {
       hand_map[idx].insert(value);
+    }
+
+    int countOccurrences(const std::set<int>& set1, const std::set<int>& set2, int idx) {
+      if (count_map[idx]) return count_map[idx];
+      for (const auto& el : set2) {
+        if (set1.find(el) != set1.end()) {
+          count_map[idx]++;
+        }
+      }
+      return count_map[idx];
     }
 
     void loadInput(const std::string& filename) {
@@ -72,6 +98,7 @@ class Day4 {
             addHandside(gameIdx, digit);
           }
         }
+        countOccurrences(win_map[gameIdx], hand_map[gameIdx], gameIdx);
         gameIdx++;
       }
     }
@@ -83,21 +110,12 @@ class Day4 {
       return number;
     }
 
-    int countOccurrences(const std::set<int>& set1, const std::set<int>& set2, int idx) {
-      if (count_map[idx]) return count_map[idx];
-      for (const auto& el : set2) {
-        if (set1.find(el) != set1.end()) {
-          count_map[idx]++;
-        }
-      }
-      return count_map[idx];
-    } 
 
     void process1() {
       int sum1 = 0;
       int idx = 1;
       while(win_map.size() > idx) {
-        int count = countOccurrences(win_map[idx], hand_map[idx], idx); 
+        int count = count_map[idx]; 
         if (count > 1 ) {
           sum1 +=  valueDoubleNTimes(1, count - 1);
         } else if (count == 1) {
@@ -112,6 +130,7 @@ class Day4 {
       if (processed_map[idx]) {
         return win_matches[idx];
       }
+      acc++;
       win_matches[idx]++;
       for (int i = idx + 1; i <= idx + count_map[idx]; i++) {
         win_matches[idx] += getMatches(i);
@@ -133,6 +152,7 @@ class Day4 {
     void test(){
       process1();
       process2();
+      std::cout << "Acc = " << acc << std::endl;
       std::cout << "Compute time: " << float(begin_t - std::clock()) / CLOCKS_PER_SEC << std::endl;
     };
 };
