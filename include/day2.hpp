@@ -30,6 +30,7 @@
 // What is the sum of the IDs of those games?
 #pragma once
 #include <cctype>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -53,10 +54,12 @@ enum COLOR {
 };
 
 class Day2 {
+  clock_t begin_t;
   int acc = 0;
   std::map<int, std::shared_ptr<Game>> map;
 public:
   Day2() {
+    begin_t = std::clock(); 
     loadInput("inputs/day2.txt");
   };
   ~Day2() {};
@@ -121,6 +124,7 @@ public:
     std::cout << "Test Day 2: Part 1 sum: "<< sum << std::endl;
     std::cout << "Test Day 2: Part 2 sum: " << sum_power << std::endl;
     std::cout << "Acc = " << acc << std::endl;
+    std::cout << "Compute time: " << float(begin_t - std::clock()) / CLOCKS_PER_SEC << std::endl;
 
   }
 };

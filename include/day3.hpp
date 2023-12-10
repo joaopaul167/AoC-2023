@@ -9,10 +9,10 @@
 // locations to test if exist an symbol around, if exist sum it.
 
 #include <cctype>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <numeric>
 #include <string>
 #include <vector>
 
@@ -24,12 +24,14 @@ enum PositionType {
 };
 
 class Day3 {
+  clock_t begin_t;
   int acc = 0;
   std::map<std::pair<int, int>, int> n_map;
   std::map<std::pair<int, int>, char> s_map;
   std::vector<std::vector<std::pair<char, PositionType>>> grid;
 public:
   Day3() {
+    begin_t = std::clock();      
     loadInput("inputs/day3.txt");
   };
   ~Day3() {};
@@ -184,6 +186,7 @@ public:
       adjNumbers.clear();
     }
     std::cout << "Test Day 3: Part 2 sum: "<< sumGear << std::endl;
+    std::cout << "Compute time: " << float(begin_t - std::clock()) / CLOCKS_PER_SEC << std::endl;
   }
 
   void test() {

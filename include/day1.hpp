@@ -12,6 +12,7 @@
 // as valid "digits".
 #pragma once
 #include <cctype>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <ostream>
@@ -21,9 +22,11 @@
 
 class Day1 {
   int acc = 0;
+  clock_t begin_t;
   std::vector<std::pair<int, int> > vector;
 public:
   Day1() {
+    begin_t = std::clock();
    loadInput("inputs/day1.txt");
   };
   ~Day1(){};
@@ -95,5 +98,6 @@ public:
   void test(){
     std::cout << "Test Day 1: Part 2 sum: " << sumAllValues() << std::endl;
     std::cout << "Acc = " << acc << std::endl;
+    std::cout << "Compute time: " << float(begin_t - std::clock()) / CLOCKS_PER_SEC << std::endl;
   }
 };
