@@ -20,11 +20,12 @@
 
 class Day4 {
   clock_t begin_t;
-  int acc = 0;
   std::map<int, std::set<int>> win_map;
   std::map<int, std::set<int>> hand_map;
   std::map<int, int> count_map;
   std::map<int, int> win_matches;
+  std::map<int, bool> processed_map;
+  int sum = 0;
   public: 
     Day4() {
       begin_t = std::clock();
@@ -75,22 +76,6 @@ class Day4 {
       }
     }
 
-    void print() {
-      int idx = 1;
-      while(win_map[idx].size() > 0) {
-        std::cout << "Game : " << idx << " winning: ";
-        for (auto win : win_map[idx]) {
-          std::cout << win << " ";
-        }
-        std::cout << " |  ";
-        for (auto hand: hand_map[idx]) {
-          std::cout << hand << " ";
-        }
-        std::cout << std::endl;
-        idx++; 
-      }
-    }
-
     int valueDoubleNTimes(int number, int n) {
       for (int i = 0; i < n ; i++){
         number *= 2;
@@ -100,59 +85,54 @@ class Day4 {
 
     int countOccurrences(const std::set<int>& set1, const std::set<int>& set2, int idx) {
       if (count_map[idx]) return count_map[idx];
-      int count = 0;
       for (const auto& el : set2) {
-        // if found return the pointer to the el, if not return a pointer to the
-        // end, thats why we check the end
         if (set1.find(el) != set1.end()) {
-          count++;
+          count_map[idx]++;
         }
       }
-      count_map[idx] = count;
-      return count;
+      return count_map[idx];
     } 
 
     void process1() {
-      int sum = 0;
+      int sum1 = 0;
       int idx = 1;
       while(win_map.size() > idx) {
         int count = countOccurrences(win_map[idx], hand_map[idx], idx); 
         if (count > 1 ) {
-          sum +=  valueDoubleNTimes(1, count - 1);
+          sum1 +=  valueDoubleNTimes(1, count - 1);
         } else if (count == 1) {
-          sum++;
+          sum1++;
         } 
         idx++;
       }
-      std::cout << "Test Day 4 - Part 1 sum: " << sum << std::endl;
+      std::cout << "Test Day 4 - Part 1 sum: " << sum1 << std::endl;
     };
 
-    void getMatches(int idx) {
-      acc++;
-      win_matches[idx]++;
-      int count = countOccurrences(win_map[idx], hand_map[idx], idx);
-      for (int i = idx + 1; i <= idx + count; i++) {
-        getMatches(i);
+    int getMatches(int idx) {
+      if (processed_map[idx]) {
+        return win_matches[idx];
       }
-      return;
+      win_matches[idx]++;
+      for (int i = idx + 1; i <= idx + count_map[idx]; i++) {
+        win_matches[idx] += getMatches(i);
+      }
+      processed_map[idx] = true;
+      return win_matches[idx];
     }
 
     void process2() {
-      int sum = 0;
-      for (auto el: win_map) {
-        getMatches(el.first);
+      for (auto rit = win_map.rbegin(); rit != win_map.rend(); rit++) {
+          getMatches(rit->first);
       }
       for (auto el : win_matches) {
-         sum += el.second;
+        sum+= el.second;
       }
       std::cout << "Test Day 4 - Part 2 sum: " << sum << std::endl;
     }
 
     void test(){
       process1();
-      std::cout << " ---- " << std::endl;
       process2();
-      std::cout << "Acc = " << acc << std::endl;
       std::cout << "Compute time: " << float(begin_t - std::clock()) / CLOCKS_PER_SEC << std::endl;
     };
 };
