@@ -11,6 +11,7 @@
 // the first doubles the point value of that card.
 
 #include <cctype>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -18,10 +19,15 @@
 #include <string>
 
 class Day4 {
+  clock_t begin_t;
+  int acc = 0;
   std::map<int, std::set<int>> win_map;
   std::map<int, std::set<int>> hand_map;
+  std::map<int, int> count_map;
+  std::map<int, int> win_matches;
   public: 
     Day4() {
+      begin_t = std::clock();
       loadInput("inputs/day4.txt");
     };
     ~Day4() {};
@@ -92,9 +98,9 @@ class Day4 {
       return number;
     }
 
-    int countOccurrences(const std::set<int>& set1, const std::set<int>& set2) {
+    int countOccurrences(const std::set<int>& set1, const std::set<int>& set2, int idx) {
+      if (count_map[idx]) return count_map[idx];
       int count = 0;
-
       for (const auto& el : set2) {
         // if found return the pointer to the el, if not return a pointer to the
         // end, thats why we check the end
@@ -102,14 +108,15 @@ class Day4 {
           count++;
         }
       }
+      count_map[idx] = count;
       return count;
     } 
 
-    void process() {
+    void process1() {
       int sum = 0;
       int idx = 1;
       while(win_map.size() > idx) {
-        int count = countOccurrences(win_map[idx], hand_map[idx]); 
+        int count = countOccurrences(win_map[idx], hand_map[idx], idx); 
         if (count > 1 ) {
           sum +=  valueDoubleNTimes(1, count - 1);
         } else if (count == 1) {
@@ -119,7 +126,33 @@ class Day4 {
       }
       std::cout << "Test Day 4 - Part 1 sum: " << sum << std::endl;
     };
+
+    void getMatches(int idx) {
+      acc++;
+      win_matches[idx]++;
+      int count = countOccurrences(win_map[idx], hand_map[idx], idx);
+      for (int i = idx + 1; i <= idx + count; i++) {
+        getMatches(i);
+      }
+      return;
+    }
+
+    void process2() {
+      int sum = 0;
+      for (auto el: win_map) {
+        getMatches(el.first);
+      }
+      for (auto el : win_matches) {
+         sum += el.second;
+      }
+      std::cout << "Test Day 4 - Part 2 sum: " << sum << std::endl;
+    }
+
     void test(){
-      process();
+      process1();
+      std::cout << " ---- " << std::endl;
+      process2();
+      std::cout << "Acc = " << acc << std::endl;
+      std::cout << "Compute time: " << float(begin_t - std::clock()) / CLOCKS_PER_SEC << std::endl;
     };
 };
