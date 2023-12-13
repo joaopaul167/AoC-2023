@@ -2,6 +2,7 @@
 #include "include/day2.hpp"
 #include "include/day3.hpp"
 #include "include/day4.hpp"
+#include "include/day5.hpp"
 #include <memory>
 
 int main() {
@@ -17,6 +18,9 @@ int main() {
 
   Day4 t4;
   t4.test();
+
+  Day5 t5;
+  t5.test();
 
   return 0;
 }
