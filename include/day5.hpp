@@ -198,7 +198,7 @@ public:
     for (int i = 4; i < seeds.size(); i += 2) {
       std::cout << i << std::endl;
       for (int j = seeds[i]; j < seeds[i] + seeds[i + 1]; j++) {
-        range_seeds.push_back(j); 
+        range_seeds.push_back(j);
       }
     }
     std::printf("end range\n");
@@ -263,7 +263,7 @@ public:
   };
 
   void test() {
-    print();
-    process2();
+    // print();
+    process1();
   };
 };
