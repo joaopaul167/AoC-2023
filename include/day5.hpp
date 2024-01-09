@@ -184,11 +184,6 @@ public:
       seeds_loc.push_back(location_v);
     }
     std::cout << "Test Day 5 - Part 1 " << std::endl;
-
-    for (auto loc : seeds_loc) {
-      std::cout << loc << " ";
-    }
-    std::cout << std::endl;
     std::cout << "Min location: "
               << *std::min_element(seeds_loc.begin(), seeds_loc.end())
               << std::endl;

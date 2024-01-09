@@ -1,5 +1,5 @@
 #!/bin/zsh
-
+clear
 echo "start building Advent of Code y(2023)"
 
 INCLUDE_DIR=include/*.hpp
