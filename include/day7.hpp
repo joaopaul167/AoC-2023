@@ -1,9 +1,10 @@
 #include <fstream>
 #include <iostream>
+#include <map>
+#include <numeric>
+#include <set>
 #include <sstream>
 #include <string>
-#include <map>
-#include <set>
 
 const std::map<std::string, int> cards{
     {"A", 14}, {"K", 13}, {"Q", 12}, {"T", 10}, {"9", 9}, {"8", 8}, {"7", 7},
@@ -18,18 +19,14 @@ struct Hand {
   std::map<char, int> cardCount;
 
   Hand(std::string s, int b) : suit{s}, bid{b} {
-    for (auto it = suit.begin(); it != suit.end(); it++) {
-      cardCount[*it]++;
+    for (const auto &it : suit) {
+      cardCount[it]++;
     }
     if (cardCount.find('J') != cardCount.end()) {
       j_count = cardCount['J'];
     }
     rank = calculateRank();
   };
-
-  void print() const {
-    std::cout << suit << " " << bid << " " << rank << " "<< j_count << std::endl;
-  }
 
   bool operator<(const Hand &other) const {
     if (rank == other.rank) {
@@ -38,15 +35,16 @@ struct Hand {
     return rank < other.rank;
   }
 
-  bool mostValuableHand(const std::string &ms, const std::string &os) const {
-    if (ms.size() == 0)
+  bool mostValuableHand(const std::string &m_suit,
+                        const std::string &o_suit) const {
+    if (m_suit.size() == 0)
       return false;
-    if (os.size() == 0)
+    if (o_suit.size() == 0)
       return true;
-    if (cards.at(ms.substr(0, 1)) == cards.at(os.substr(0, 1))) {
-      return mostValuableHand(ms.substr(1), os.substr(1));
+    if (cards.at(m_suit.substr(0, 1)) == cards.at(o_suit.substr(0, 1))) {
+      return mostValuableHand(m_suit.substr(1), o_suit.substr(1));
     }
-    return cards.at(ms.substr(0, 1)) < cards.at(os.substr(0, 1));
+    return cards.at(m_suit.substr(0, 1)) < cards.at(o_suit.substr(0, 1));
   }
 
   bool checkCount(int target) const {
@@ -56,16 +54,16 @@ struct Hand {
     // use 1 for two pair, j is zero by design: protected by all assertions
     if (target == 1) {
       int count = 0;
-      for (auto it = cardCount.begin(); it != cardCount.end(); it++) {
-        if (it->second == 2)
+      for (const auto &[card, value] : cardCount) {
+        if (value == 2)
           count++;
       }
       return count == 2;
     }
-    for (auto it = cardCount.begin(); it != cardCount.end(); it++) {
-      if (it->first == 'J')
+    for (const auto &[card, value] : cardCount) {
+      if (card == 'J')
         continue;
-      if (it->second + j_count == target) {
+      if (value + j_count == target) {
         return true;
       }
     }
@@ -73,43 +71,39 @@ struct Hand {
   }
 
   bool checkFullHouse() const {
-    int j = j_count;
-    bool pair = false;
-    bool three = false;
-    
-    for (auto it = cardCount.begin(); it != cardCount.end(); it++) {
-      if (it->first == 'J')
+    int remainingJokers = j_count;
+
+    bool hasPair = false;
+    bool hasThreeOfAKind = false;
+
+    for (const auto &[card, count] : cardCount) {
+      if (card == 'J')
         continue;
-      if (j == 2) {
-        if (it->second + 1 == 2) {
-          pair = true;
-          j--;
-          continue;
-        } else if (it->second + 1 == 3) {
-          three = true;
-          j--;
-          continue;
-        } else if (it->second + 2 == 3) {
-          three = true;
-          j--;
-          j--;
-          continue;
+      if (remainingJokers == 2) {
+        if (count + 1 == 2) {
+          hasPair = true;
+          remainingJokers -= 1;
+        } else if (count + 1 == 3) {
+          hasThreeOfAKind = true;
+          remainingJokers -= 1;
+        } else if (count + 2 == 3) {
+          hasThreeOfAKind = true;
+          remainingJokers -= 2;
         }
       }
-      
-      if (it->second + j == 2) {
-        pair = true;
-        if (j > 0) {
-          j--;
+      if (count + remainingJokers == 2) {
+        hasPair = true;
+        if (remainingJokers > 0) {
+          remainingJokers -= 1;
         }
-      } else if (it->second + j == 3) {
-        three = true;
-        if (j > 0) {
-          j--;
+      } else if (count + remainingJokers == 3) {
+        hasThreeOfAKind = true;
+        if (remainingJokers > 0) {
+          remainingJokers -= 1;
         }
       }
     }
-    return pair && three;
+    return hasPair && hasThreeOfAKind;
   }
 
   const int calculateRank() const {
@@ -139,14 +133,15 @@ public:
   };
 
   void solve() {
-    int rank = 1;
-    long sum = 0;
-    for (auto it = hands.begin(); it != hands.end(); it++) {
-      int final_bid = it->bid * rank;
-      sum += final_bid;
-      rank++;
-    }
-
+    long sum = std::accumulate(
+        hands.begin(), hands.end(), 0, [this](long sum, const Hand &h) {
+          auto iter = hands.find(h);
+          if (iter != hands.end()) {
+            size_t currentIndex = std::distance(hands.begin(), iter);
+            sum += h.bid * currentIndex;
+          }
+          return sum;
+        });
     std::cout << "Test Day 7 - Part 2: " << sum << std::endl;
   };
 

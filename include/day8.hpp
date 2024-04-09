@@ -30,7 +30,7 @@ class Day8 {
 
   void solve() {
     long sum = getPath("AAA");
-    std::cout << "Test Day 8 - Part 1: " << sum << std::endl;
+    std::cout << "test day 8 - part 1: " << sum << std::endl;
   };
 
   void solve2() {

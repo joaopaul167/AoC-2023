@@ -6,6 +6,11 @@
 #include "include/day6.hpp"
 #include "include/day7.hpp"
 #include "include/day8.hpp"
+#include "include/day9.hpp"
+#include "include/day10.hpp"
+#include "include/day11.hpp"
+#include "include/day12.hpp"
+#include <map>
 #include <memory>
 
 int main() {
@@ -30,6 +35,14 @@ int main() {
   Day7 t7;
   
   Day8 t8;
+
+  Day9 t9;
+
+  Day10 t10;
+
+  Day11 t11;
+
+  Day12<void(std::string, std::map<std::string,long>) ,std::string> t12;
 
   return 0;
 }
